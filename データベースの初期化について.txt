@@ -1,0 +1,225 @@
+MySQL事前操作
+以下はMySQLがインストール、環境構築がされていることが前提です。
+以下のSQLを実行し、デフォルトのデータベースを作成してください。
+1行目で何も変更がなかった場合、データベース名を任意のものに変え、本プログラムのファイル、Connect.javaの18行目のJDBC_URLのrefrigeratorをその名称に変えてください。
+(既にrefrigeratorという名称のデータベースがあることが原因です。)
+
+
+create database if not exists refrigerator;
+
+create table food(
+    food_id int unique, 
+    foodname varchar(20) not null,
+    stock int not null,
+    type varchar(20),
+    limit_type int not null,
+    note varchar(100),
+    limit_date date not null);
+
+insert into food values(0, "default food", 0, "default type", 0, "none", 20210101);
+
+create table limittype(
+    limit_id int not null,
+    limit_name char(4) not null);
+
+insert into limittype values(0, "賞味期限");
+insert into limittype values(1, "消費期限");
+
+create table memo(
+    memo_id int unique,
+    title varchar(20) not null,
+    content varchar(200) not null);
+
+insert into memo values(0, "default text", "default content");
+
+create table menu(
+    menu_id int unique,
+    title varchar(20) not null,
+    content varchar(1000) not null);
+
+insert into menu values(0, "default menu", "default content");
+
+create table menufood(
+    menufood_name varchar(20) not null,
+    number int not null,
+    menufood_id int not null);
+
+insert into menufood values("default food", 1, 0);
+
+create table onetime(
+    food_id int unique, 
+    foodname varchar(20) not null,
+    stock int not null,
+    type varchar(20),
+    limit_type int not null,
+    note varchar(100),
+    limit_date date not null,
+    place_id int not null);
+
+create table placename(
+    place_id int unique,
+    placename varchar(20) not null);
+
+insert into placename values(0, "ドアポケット");
+
+create table refrigerator(
+    food_id int unique,
+    place_id int not null);
+
+insert into refrigerator values(0, 0);
+
+--------------------------------------------------------------------------------------------------------------------
+また、冷蔵庫の格納場所は予め設定する必要があります。以下のように追加してください(ドアポケットはデフォルトで0番です)
+(※1と※2にはそれぞれ重複しないid値(1から順につけてください)、格納場所の名称を当てはめてください)
+insert into place values(※1, ※2)
+例) insert into place values(1, "野菜室"); insert into place values(2, "1段目");
+
+以上が実行SQLです。
+クエリ結果が以下のようになっていればOK。
+なっていない場合は以下を実行して初めからやり直してください。
+drop database refrigerator;
+またSQLが分かる場合は、以下の結果をもとに自身で変更していただいても結構です。
+--------------------------------------------------------------------------------------------------------------------
+
+
+show tables from refrigerator;
++------------------------+
+| Tables_in_refrigerator |
++------------------------+
+| food                   |
+| limittype              |
+| memo                   |
+| menu                   |
+| menufood               |
+| onetime                |
+| placename              |
+| refrigerator           |
++------------------------+
+
+show columns from food;
++------------+--------------+------+-----+---------+-------+
+| Field      | Type         | Null | Key | Default | Extra |
++------------+--------------+------+-----+---------+-------+
+| food_id    | int          | YES  | UNI | NULL    |       |
+| foodname   | varchar(20)  | NO   |     | NULL    |       |
+| stock      | int          | NO   |     | NULL    |       |
+| type       | varchar(20)  | YES  |     | NULL    |       |
+| limit_type | int          | NO   |     | NULL    |       |
+| note       | varchar(100) | YES  |     | NULL    |       |
+| limit_date | date         | NO   |     | NULL    |       |
++------------+--------------+------+-----+---------+-------+
+
+show columns from limittype;
++-----------+---------+------+-----+---------+-------+
+| Field     | Type    | Null | Key | Default | Extra |
++-----------+---------+------+-----+---------+-------+
+| limit_id  | int     | NO   |     | NULL    |       |
+| limit_nme | char(4) | NO   |     | NULL    |       |
++-----------+---------+------+-----+---------+-------+
+
+show columns from memo;
++---------+--------------+------+-----+---------+-------+
+| Field   | Type         | Null | Key | Default | Extra |
++---------+--------------+------+-----+---------+-------+
+| memo_id | int          | YES  | UNI | NULL    |       |
+| title   | varchar(20)  | NO   |     | NULL    |       |
+| content | varchar(200) | NO   |     | NULL    |       |
++---------+--------------+------+-----+---------+-------+
+
+show columns from menu;
++---------+---------------+------+-----+---------+-------+
+| Field   | Type          | Null | Key | Default | Extra |
++---------+---------------+------+-----+---------+-------+
+| menu_id | int           | YES  | UNI | NULL    |       |
+| title   | varchar(20)   | NO   |     | NULL    |       |
+| content | varchar(1000) | NO   |     | NULL    |       |
++---------+---------------+------+-----+---------+-------+
+
+show columns from menufood;
++---------------+-------------+------+-----+---------+-------+
+| Field         | Type        | Null | Key | Default | Extra |
++---------------+-------------+------+-----+---------+-------+
+| menufood_name | varchar(20) | NO   |     | NULL    |       |
+| number        | int         | NO   |     | NULL    |       |
+| menufood_id   | int         | NO   |     | NULL    |       |
++---------------+-------------+------+-----+---------+-------+
+
+show columns from onetime;
++------------+--------------+------+-----+---------+-------+
+| Field      | Type         | Null | Key | Default | Extra |
++------------+--------------+------+-----+---------+-------+
+| food_id    | int          | YES  | UNI | NULL    |       |
+| foodname   | varchar(20)  | NO   |     | NULL    |       |
+| stock      | int          | NO   |     | NULL    |       |
+| type       | varchar(20)  | YES  |     | NULL    |       |
+| limit_type | int          | NO   |     | NULL    |       |
+| note       | varchar(100) | YES  |     | NULL    |       |
+| limit_date | date         | NO   |     | NULL    |       |
+| place_id   | int          | NO   |     | NULL    |       |
++------------+--------------+------+-----+---------+-------+
+
+show columns from placename;
++-----------+-------------+------+-----+---------+-------+
+| Field     | Type        | Null | Key | Default | Extra |
++-----------+-------------+------+-----+---------+-------+
+| place_id  | int         | YES  | UNI | NULL    |       |
+| placename | varchar(20) | NO   |     | NULL    |       |
++-----------+-------------+------+-----+---------+-------+
+
+show columns from refrigerator;
++----------+------+------+-----+---------+-------+
+| Field    | Type | Null | Key | Default | Extra |
++----------+------+------+-----+---------+-------+
+| food_id  | int  | YES  | UNI | NULL    |       |
+| place_id | int  | NO   |     | NULL    |       |
++----------+------+------+-----+---------+-------+
+
+select * from food;
++---------+--------------+-------+--------------+------------+------+------------+
+| food_id | foodname     | stock | type         | limit_type | note | limit_date |
++---------+--------------+-------+--------------+------------+------+------------+
+|       0 | default food |     0 | default type |          0 | none | 0000-00-00 |
++---------+--------------+-------+--------------+------------+------+------------+
+
+select * from limittype;
++----------+------------+
+| limit_id | limit_name |
++----------+------------+
+|        0 | 賞味期限   |
+|        1 | 消費期限   |
++----------+------------+
+
+select * from memo;
++---------+--------------+-----------------+
+| memo_id | title        | content         |
++---------+--------------+-----------------+
+|       0 | default text | default content |
++---------+--------------+-----------------+
+
+select * from menu;
++---------+--------------+-----------------+
+| menu_id | title        | content         |
++---------+--------------+-----------------+
+|       0 | default menu | default content |
++---------+--------------+-----------------+
+
+select * from menufood;
++---------------+--------+-------------+
+| menufood_name | number | menufood_id |
++---------------+--------+-------------+
+| default food  |      1 |           0 |
++---------------+--------+-------------+
+
+select * from placename;
++----------+--------------+
+| place_id | placename    |
++----------+--------------+
+|        0 | ドアポケット |
++----------+--------------+
+
+select * from refrigerator;
++---------+----------+
+| food_id | place_id |
++---------+----------+
+|       0 |        0 |
++---------+----------+
